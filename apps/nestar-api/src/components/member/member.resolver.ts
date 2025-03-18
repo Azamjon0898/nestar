@@ -1,8 +1,14 @@
-import { InternalServerErrorException } from '@nestjs/common';
+import { InternalServerErrorException, UseGuards } from '@nestjs/common';
 import { MemberService } from './member.service';
 import { Args, Mutation, Query, Resolver } from '@nestjs/graphql';
 import { LoginInput, MemberInput } from '../../libs/dto/member/member.input';
 import { Member } from '../../libs/dto/member/member';
+import { AuthGuard } from '../auth/guards/auth.guard';
+import { AuthMember } from '../auth/decorators/authMember.decorator';
+import { ObjectId } from 'mongoose';
+import { Roles } from '../auth/decorators/roles.decorator';
+import { MemberType } from '../../libs/enums/member.enum';
+import { RolesGuard } from '../auth/guards/roles.guard';
 
 @Resolver()
 export class MemberResolver {
@@ -18,14 +24,50 @@ export class MemberResolver {
 		console.log('Mutation login');
 		return this.memberService.login(input);
 	}
+	// Authenticated
+	@UseGuards(AuthGuard)
 	@Mutation(() => String)
-	public async updateMember(): Promise<string> {
+	public async updateMember(@AuthMember('_id') memberId: ObjectId): Promise<string> {
 		console.log('Mutation updateMember');
 		return this.memberService.updateMember();
 	}
+	@UseGuards(AuthGuard)
+	@Query(() => String)
+	public async checkAuth(@AuthMember('memberNick') memberNick: string): Promise<string> {
+		console.log('Query сheckAuth');
+		console.log(memberNick);
+		return `hi ${memberNick}`;
+	}
+	@Roles(MemberType.USER)
+	@UseGuards(RolesGuard)
+	@Query(() => String)
+	public async checkAuthRoles(@AuthMember() authMember: Member): Promise<string> {
+		console.log('Query сheckAuth');
+
+		return `hi ${authMember.memberNick},you are ${authMember.memberType} (member_id:${authMember._id
+
+		})`;
+	}
+
 	@Query(() => String)
 	public async getMember(): Promise<string> {
 		console.log('Query: getMember');
 		return this.memberService.getMember();
+	}
+	/**	ADMIN	**/
+
+	// Authorization:ADMIN
+	@Roles(MemberType.ADMIN)
+	@UseGuards(RolesGuard)
+	@Mutation(() => String)
+	public async getAllMembersByAdmin(@AuthMember() authMember: Member): Promise<string> {
+		console.log('authMember.member type :', authMember.memberType);
+		return this.memberService.getAllMemberByAdmin();
+	}
+	// Authorization:ADMIN
+	@Mutation(() => String)
+	public async updateMemberByAdmin(): Promise<string> {
+		console.log('Mutation:updateMemberByAdmin');
+		return this.memberService.updateMemberByAdmin();
 	}
 }
