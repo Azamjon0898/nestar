@@ -1,4 +1,4 @@
-import { Module } from '@nestjs/common';
+import { Global, Module } from '@nestjs/common';
 import { AppController } from './app.controller';
 import { AppService } from './app.service';
 import { ConfigModule } from '@nestjs/config';
@@ -8,6 +8,7 @@ import { AppResolver } from './app.resolver';
 import { ComponentsModule } from './components/components.module';
 import { DatabaseModule } from './database/database.module';
 import { T } from './libs/types/common';
+
 @Module({
 	imports: [
 		ConfigModule.forRoot(),
@@ -17,17 +18,17 @@ import { T } from './libs/types/common';
 			uploads: false,
 			autoSchemaFile: true,
 			formatError: (error: T) => {
-				const graphQLFormattedError = {
+				const graphqlFormattedError = {
 					code: error?.extensions.code,
-					message:error?.extensions?.exception?.response?.message || error?.extensions?.response?.message || error?.message,
+					message: error?.extensions?.response?.message || error?.extensions?.response?.message || error?.message,
 				};
-				console.log('GRAPHQL GLOBAL ERR:', graphQLFormattedError);
 
-				return graphQLFormattedError;
+				console.log('GraphQL global Error:', graphqlFormattedError);
+				return graphqlFormattedError;
 			},
 		}),
-		ComponentsModule, // HTTP 
-		DatabaseModule,//TCP
+		ComponentsModule,
+		DatabaseModule,
 	],
 	controllers: [AppController],
 	providers: [AppService, AppResolver],

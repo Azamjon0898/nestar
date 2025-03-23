@@ -1,32 +1,35 @@
 import { Injectable } from '@nestjs/common';
 import * as bcrypt from 'bcryptjs';
+import { T } from '../../libs/types/common';
 import { Member } from '../../libs/dto/member/member';
 import { JwtService } from '@nestjs/jwt';
-import { T } from '../../libs/types/common';
 import { shapeIntoMongoObjectId } from '../../libs/config';
+
 @Injectable()
 export class AuthService {
 	constructor(private jwtService: JwtService) {}
+
 	public async hashPassword(memberPassword: string): Promise<string> {
 		const salt = await bcrypt.genSalt();
-
 		return await bcrypt.hash(memberPassword, salt);
 	}
-	public async comparePassword(password: string, hashedPassword: string | undefined): Promise<boolean> {
-		return bcrypt.compare(password, hashedPassword);
+
+	public async comparePasswords(password: string, hashedPassword: string): Promise<boolean> {
+		return await bcrypt.compare(password, hashedPassword); // compare method is async, how compares without password? if no salt is given, how it compares?
 	}
+
 	public async createToken(member: Member): Promise<string> {
-		const playload: T = {};
-
+		const payload: T = {};
 		Object.keys(member['_doc'] ? member['_doc'] : member).map((ele) => {
-			playload[`${ele}`] = member[`${ele}`];
+			payload[`${ele}`] = member[`${ele}`];
 		});
-		delete playload.memberPassword;
+		delete payload.memberPassword;
 
-		return await this.jwtService.signAsync(playload);
+		return await this.jwtService.signAsync(payload);
 	}
+
 	public async verifyToken(token: string): Promise<Member> {
-		const member = await this.jwtService.verifyAsync(token);
+		const member = await this.jwtService.verifyAsync(token); // why we dont need secret?
 		member._id = shapeIntoMongoObjectId(member._id);
 		return member;
 	}

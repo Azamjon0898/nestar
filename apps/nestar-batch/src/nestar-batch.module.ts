@@ -5,7 +5,6 @@ import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [ConfigModule.forRoot()],
-
   controllers: [NestarBatchController],
   providers: [NestarBatchService],
 })

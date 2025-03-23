@@ -33,7 +33,7 @@ export class RolesGuard implements CanActivate {
 			return true;
 		}
 
-		// Agar boshqa holatlar bo‘lsa, false qaytarish kerak
+		// description => http, rpc, gprs and etc are ignored
 		return false;
 	}
 }
