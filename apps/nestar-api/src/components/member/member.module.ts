@@ -8,17 +8,16 @@ import { ViewModule } from '../view/view.module';
 import { LikeModule } from '../like/like.module';
 import FollowSchema from '../../schemas/Follow.model';
 
+
 @Module({
-	imports: [
-		MongooseModule.forFeature([{ name: 'Member', schema: MemberSchema }]),
-		MongooseModule.forFeature([{ name: 'Follow', schema: FollowSchema }]),
-		AuthModule,
-		ViewModule,
-		LikeModule,
-	],
-	providers: [MemberResolver, MemberService],
-	exports: [MemberService],
+  imports:[
+  MongooseModule.forFeature([{name: "Member", schema: MemberSchema}]), 
+  MongooseModule.forFeature([{name: "Follow", schema: FollowSchema}]), // Follow ni endi memberni ichida ishlatishimiz mumkun 
+  AuthModule,
+  ViewModule, 
+  LikeModule
+  ],
+  providers: [MemberResolver, MemberService, ViewModule],
+  exports: [MemberService]
 })
-export class MemberModule {
-	constructor() {}
-}
+export class MemberModule {}

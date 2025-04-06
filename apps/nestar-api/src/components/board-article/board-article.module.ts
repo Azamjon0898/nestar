@@ -9,14 +9,18 @@ import { ViewModule } from '../view/view.module';
 import { LikeModule } from '../like/like.module';
 
 @Module({
-	imports: [
-		MongooseModule.forFeature([{ name: 'BoardArticle', schema: BoardArticleSchema }]),
-		MemberModule,
-		AuthModule,
-		ViewModule,
-		LikeModule,
-	],
-	providers: [BoardArticleResolver, BoardArticleService],
-	exports: [BoardArticleService],
+  imports:[
+    MongooseModule.forFeature([
+      {
+        name: "BoardArticle",
+        schema: BoardArticleSchema,
+      }]),
+      AuthModule,
+      MemberModule,
+      ViewModule,
+      LikeModule
+  ],
+  providers: [BoardArticleResolver, BoardArticleService],
+  exports: [BoardArticleService],
 })
 export class BoardArticleModule {}
